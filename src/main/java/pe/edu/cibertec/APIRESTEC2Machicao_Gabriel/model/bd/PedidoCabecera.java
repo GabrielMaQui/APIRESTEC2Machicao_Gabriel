@@ -1,15 +1,15 @@
 package pe.edu.cibertec.APIRESTEC2Machicao_Gabriel.model.bd;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Date;
 import java.util.List;
 
-@Getter
-@Setter
+@NoArgsConstructor
+@Data
 @Entity
+@Table(name = "PEDIDO_CABECERA")
 public class PedidoCabecera {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
