@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.cibertec.APIRESTEC2Machicao_Gabriel.model.bd.PedidoCabecera;
 import pe.edu.cibertec.APIRESTEC2Machicao_Gabriel.model.bd.PedidoDetalle;
+import pe.edu.cibertec.APIRESTEC2Machicao_Gabriel.model.dto.PedidoCabeceraDTO;
 import pe.edu.cibertec.APIRESTEC2Machicao_Gabriel.service.PedidoService;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public class PedidoController {
     private PedidoService pedidoService;
 
     @GetMapping
-    public List<PedidoCabecera> obtenerTodosLosPedidos() {
+    public List<PedidoCabeceraDTO> obtenerTodosLosPedidos() {
         return pedidoService.obtenerTodosLosPedidos();
     }
 
@@ -30,7 +31,7 @@ public class PedidoController {
     }
 
     @PostMapping
-    public PedidoCabecera guardarPedido(@RequestBody PedidoCabecera pedidoCabecera) {
+    public PedidoCabeceraDTO guardarPedido(@RequestBody PedidoCabecera pedidoCabecera) {
         return pedidoService.guardarPedido(pedidoCabecera);
     }
 

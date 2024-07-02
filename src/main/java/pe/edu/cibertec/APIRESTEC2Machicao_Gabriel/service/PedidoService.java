@@ -7,6 +7,9 @@ import pe.edu.cibertec.APIRESTEC2Machicao_Gabriel.model.bd.PedidoCabecera;
 import pe.edu.cibertec.APIRESTEC2Machicao_Gabriel.model.bd.PedidoDetalle;
 import pe.edu.cibertec.APIRESTEC2Machicao_Gabriel.model.bd.Producto;
 import pe.edu.cibertec.APIRESTEC2Machicao_Gabriel.model.bd.Usuario;
+import pe.edu.cibertec.APIRESTEC2Machicao_Gabriel.model.dto.PedidoCabeceraDTO;
+import pe.edu.cibertec.APIRESTEC2Machicao_Gabriel.model.dto.PedidoDetalleDTO;
+import pe.edu.cibertec.APIRESTEC2Machicao_Gabriel.model.dto.ProductoDTO;
 import pe.edu.cibertec.APIRESTEC2Machicao_Gabriel.repository.IPedidoCabeceraRepository;
 import pe.edu.cibertec.APIRESTEC2Machicao_Gabriel.repository.IPedidoDetalleRepository;
 import pe.edu.cibertec.APIRESTEC2Machicao_Gabriel.repository.IProductoRepository;
@@ -30,21 +33,20 @@ public class PedidoService {
     @Autowired
     private IProductoRepository productoRepository;
 
-    public List<PedidoCabecera> obtenerTodosLosPedidos() {
-        return pedidoCabeceraRepository.findAll();
+    public List<PedidoCabeceraDTO> obtenerTodosLosPedidos() {
+        List<PedidoCabecera> pedidos = pedidoCabeceraRepository.findAll();
+        return pedidos.stream().map(this::convertToDTO).toList();
     }
 
     public Optional<PedidoCabecera> obtenerPedidoPorId(Integer id) {
         return pedidoCabeceraRepository.findById(id);
     }
 
-    public PedidoCabecera guardarPedido(PedidoCabecera pedidoCabecera) {
-
+    public PedidoCabeceraDTO guardarPedido(PedidoCabecera pedidoCabecera) {
         Integer usuarioId = pedidoCabecera.getUsuario().getCodigoUsuario();
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado: " + usuarioId));
         pedidoCabecera.setUsuario(usuario);
-
 
         for (PedidoDetalle detalle : pedidoCabecera.getDetalles()) {
             Integer productoId = detalle.getProducto().getCodigoProducto();
@@ -53,18 +55,20 @@ public class PedidoService {
             detalle.setProducto(producto);
         }
 
-        // Guardar la cabecera del pedido
         PedidoCabecera savedPedidoCabecera = pedidoCabeceraRepository.save(pedidoCabecera);
 
-        // Asignar la cabecera a los detalles y guardarlos
         pedidoCabecera.getDetalles().forEach(detalle -> {
             detalle.setPedidoCabecera(savedPedidoCabecera);
             pedidoDetalleRepository.save(detalle);
         });
 
-        return savedPedidoCabecera;
+        return convertToDTO(savedPedidoCabecera);
     }
 
+    public List<PedidoCabeceraDTO> listarPedidos() {
+        List<PedidoCabecera> pedidos = pedidoCabeceraRepository.findAll();
+        return pedidos.stream().map(this::convertToDTO).toList();
+    }
 
     public void eliminarPedido(Integer id) {
         pedidoCabeceraRepository.deleteById(id);
@@ -72,5 +76,37 @@ public class PedidoService {
 
     public List<PedidoDetalle> obtenerDetallesPorPedidoId(Integer pedidoId) {
         return pedidoDetalleRepository.findByPedidoCabeceraCodPedCab(pedidoId);
+    }
+
+    private PedidoCabeceraDTO convertToDTO(PedidoCabecera pedidoCabecera) {
+        return new PedidoCabeceraDTO(
+                pedidoCabecera.getCodPedCab(),
+                pedidoCabecera.getUsuario(),
+                pedidoCabecera.getFecha().toString(),
+                pedidoCabecera.getPrecioTotal(),
+                pedidoCabecera.getEsConReceta(),
+                pedidoCabecera.getFotoReceta(),
+                pedidoCabecera.getDireccionEntrega(),
+                pedidoCabecera.getDireccionReferencia(),
+                pedidoCabecera.getEstadoEntrega(),
+                pedidoCabecera.getDetalles().stream().map(this::convertToDTO).toList()
+        );
+    }
+
+    private PedidoDetalleDTO convertToDTO(PedidoDetalle pedidoDetalle) {
+        return new PedidoDetalleDTO(
+                pedidoDetalle.getSecDet(),
+                pedidoDetalle.getCantidad(),
+                pedidoDetalle.getSubtotal(),
+                convertToDTO(pedidoDetalle.getProducto())
+        );
+    }
+
+    private ProductoDTO convertToDTO(Producto producto) {
+        return new ProductoDTO(
+                producto.getCodigoProducto(),
+                producto.getNombreProducto(),
+                producto.getPrecio()
+        );
     }
 }
