@@ -13,7 +13,7 @@ import java.util.List;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("v1/usuarios")
+@RequestMapping("/v1/usuarios")
 public class UsuarioController {
 
     @Autowired
