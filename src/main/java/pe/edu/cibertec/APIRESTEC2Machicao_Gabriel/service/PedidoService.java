@@ -1,6 +1,7 @@
 package pe.edu.cibertec.APIRESTEC2Machicao_Gabriel.service;
 
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.edu.cibertec.APIRESTEC2Machicao_Gabriel.model.bd.PedidoCabecera;
@@ -15,6 +16,7 @@ import pe.edu.cibertec.APIRESTEC2Machicao_Gabriel.repository.IPedidoDetalleRepos
 import pe.edu.cibertec.APIRESTEC2Machicao_Gabriel.repository.IProductoRepository;
 import pe.edu.cibertec.APIRESTEC2Machicao_Gabriel.repository.IUsuarioRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,27 +44,18 @@ public class PedidoService {
         return pedidoCabeceraRepository.findById(id);
     }
 
-    public PedidoCabeceraDTO guardarPedido(PedidoCabecera pedidoCabecera) {
-        Integer usuarioId = pedidoCabecera.getUsuario().getCodigoUsuario();
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado: " + usuarioId));
-        pedidoCabecera.setUsuario(usuario);
+    @Transactional
+    public PedidoCabecera guardarPedido(PedidoCabecera pedidoCabecera) {
+        // Guardar la cabecera del pedido
+        PedidoCabecera savedCabecera = pedidoCabeceraRepository.save(pedidoCabecera);
 
+        // Guardar los detalles del pedido
         for (PedidoDetalle detalle : pedidoCabecera.getDetalles()) {
-            Integer productoId = detalle.getProducto().getCodigoProducto();
-            Producto producto = productoRepository.findById(productoId)
-                    .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado: " + productoId));
-            detalle.setProducto(producto);
+            detalle.setPedidoCabecera(savedCabecera);
+            pedidoDetalleRepository.save(detalle);
         }
 
-        PedidoCabecera savedPedidoCabecera = pedidoCabeceraRepository.save(pedidoCabecera);
-
-        pedidoCabecera.getDetalles().forEach(detalle -> {
-            detalle.setPedidoCabecera(savedPedidoCabecera);
-            pedidoDetalleRepository.save(detalle);
-        });
-
-        return convertToDTO(savedPedidoCabecera);
+        return savedCabecera;
     }
 
     public List<PedidoCabeceraDTO> listarPedidos() {

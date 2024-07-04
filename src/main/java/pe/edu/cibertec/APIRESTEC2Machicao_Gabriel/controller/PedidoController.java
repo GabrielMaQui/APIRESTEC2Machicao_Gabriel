@@ -31,7 +31,7 @@ public class PedidoController {
     }
 
     @PostMapping
-    public PedidoCabeceraDTO guardarPedido(@RequestBody PedidoCabecera pedidoCabecera) {
+    public PedidoCabecera guardarPedido(@RequestBody PedidoCabecera pedidoCabecera) {
         return pedidoService.guardarPedido(pedidoCabecera);
     }
 

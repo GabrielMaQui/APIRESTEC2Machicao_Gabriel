@@ -1,5 +1,6 @@
 package pe.edu.cibertec.APIRESTEC2Machicao_Gabriel.model.bd;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
@@ -10,6 +11,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(name = "PEDIDO_DETALLE")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+
 public class PedidoDetalle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,5 +30,5 @@ public class PedidoDetalle {
 
 
 
-    // Getters and Setters
+
 }

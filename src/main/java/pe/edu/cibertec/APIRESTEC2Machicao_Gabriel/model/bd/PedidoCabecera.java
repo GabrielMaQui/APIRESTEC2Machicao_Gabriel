@@ -1,5 +1,6 @@
 package pe.edu.cibertec.APIRESTEC2Machicao_Gabriel.model.bd;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,11 +11,13 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "PEDIDO_CABECERA")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+
 public class PedidoCabecera {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer codPedCab;
-    @ManyToOne
+        private Integer codPedCab;
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "codigoUsuario")
     private Usuario usuario;
     private Date fecha;
